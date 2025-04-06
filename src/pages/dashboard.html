@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker - Dashboard</title>
+    <link rel="stylesheet" href="../css/pages/dashboard.css">
+    <link rel="stylesheet" href="../css/nav.css">
+    <link rel="icon" href="../assets/icons/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be inserted here -->
+    <div id="header-container"></div>
+
+    <!-- Main content -->
+    <div class="container">
+        <!-- Dashboard will be rendered here by the DashboardModule -->
+        <div id="dashboardContainer">
+            <!-- This will be populated by your DashboardModule -->
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p>Loading your dashboard...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer will be inserted here -->
+    <div id="footer-container"></div>
+
+    <!-- Charts.js for rendering charts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Include partials script -->
+    <script>
+        // Function to load HTML partials
+        async function loadPartial(url, containerId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Error loading ${url}: ${response.status}`);
+                }
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+                
+                // If this is the header, set up event listeners after it's loaded
+                if (containerId === 'header-container') {
+                    const currentPage = 'dashboard.html'; // Or detect dynamically if you prefer
+                
+                    // Highlight the active nav link
+                    const navLinks = document.querySelectorAll('.nav-links a');
+                    navLinks.forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href && href.includes(currentPage)) {
+                            link.classList.add('active');
+                        }
+                    });
+                
+                    const logoutBtn = document.getElementById('logoutBtn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', () => {
+                            window.handleLogout && window.handleLogout();
+                        });
+                    }
+                }
+                
+            } catch (error) {
+                console.error(`Failed to load partial: ${error}`);
+            }
+        }
+
+        // Load the partials
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPartial('../partials/header.html', 'header-container');
+            loadPartial('../partials/footer.html', 'footer-container');
+        });
+    </script>
+    
+    <!-- Main JavaScript -->
+    <script type="module">
+        // Import your modules
+        import { AuthModule } from '../js/modules/auth.js';
+        import { UserModule } from '../js/modules/user-module.js';
+        import { WorkoutModule } from '../js/modules/workout-module.js';
+        import { NutritionModule } from '../js/modules/nutrition-module.js';
+        import { GoalsModule } from '../js/modules/goals-module.js';
+        import { DashboardModule } from '../js/modules/dashboard.js';
+    
+        // Initialize modules
+        const auth = new AuthModule();
+        
+        // Make logout function available to the header
+        window.handleLogout = () => {
+            auth.logout();
+        };
+        
+        // Check if user is logged in
+        if (!auth.checkAuthStatus()) {
+            window.location.href = 'index.html'; // Redirect to login page
+        } else {
+            // Initialize other modules
+            const userModule = new UserModule();
+            const workoutModule = new WorkoutModule();
+            const nutritionModule = new NutritionModule();
+            const goalsModule = new GoalsModule();
+            
+            // Initialize dashboard
+            const dashboardModule = new DashboardModule(
+                userModule,
+                workoutModule,
+                nutritionModule,
+                goalsModule
+            );
+            
+            // Render the dashboard
+            dashboardModule.render();
+            
+            // Set up user avatar
+            const currentUser = auth.getCurrentUser();
+            
+            // Function to set up user avatar (can be called after header loads)
+            const setupUserAvatar = () => {
+                const userAvatar = document.getElementById('userAvatar');
+                if (userAvatar && currentUser && currentUser.name) {
+                    userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+                }
+            };
+            
+            // Set up avatar initially and when DOM changes
+            setupUserAvatar();
+            
+            // Use a MutationObserver to detect when the header is loaded
+            const observer = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (mutation.type === 'childList') {
+                        setupUserAvatar();
+                    }
+                }
+            });
+            
+            observer.observe(document.getElementById('header-container'), { childList: true });
+        }
+    </script>
+</body>
+</html>

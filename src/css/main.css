@@ -231,11 +231,11 @@ a:hover {
     align-items: center;
 }
 
-/* .logo-small {
+.logo-small {
     height: 40px;
-} */
+}
 
-/* .nav-links {
+.nav-links {
     display: flex;
     gap: var(--spacing-md);
 }
@@ -248,7 +248,7 @@ a:hover {
 .nav-icon {
     position: relative;
     font-size: 1.5rem;
-} */
+}
 
 /* Dashboard Elements */
 .dashboard-container {

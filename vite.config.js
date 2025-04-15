@@ -16,6 +16,9 @@ export default defineConfig({
         nutrition: resolve(__dirname, "src/pages/nutrition.html"),
         header: resolve(__dirname, "src/partials/header.html"),
         footer: resolve(__dirname, "src/partials/footer.html"),
+        workouts: resolve(__dirname, "src/pages/workouts.html"),
+        goals: resolve(__dirname, "src/pages/goals.html"),
+        routes: resolve(__dirname, "src/pages/routes.html"),
       
       },
     },

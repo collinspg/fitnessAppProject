@@ -13,14 +13,13 @@ export class DashboardModule {
             console.error("Dashboard container not found");
             return;
         }
-
         const userData = this.userModule.getUserData();
         const activityData = this.userModule.getActivitySummary();
-        const recentWorkouts = this.workoutModule.getRecentWorkouts(3);
-        const weeklyStats = this.workoutModule.getWeeklyStats();
+        const savedWorkouts = this.workoutModule.displaySavedWorkouts(3);
+        // const weeklyStats = this.workoutModule.getWeeklyStats();
         const nutritionToday = this.nutritionModule.getDailyNutrition();
         const activeGoals = this.goalsModule.getActiveGoals();
-
+        
         // Create dashboard HTML
         this.container.innerHTML = `
             <h1>Welcome to Your Fitness Dashboard</h1>
@@ -54,7 +53,6 @@ export class DashboardModule {
                             <div class="stat-label">Workouts</div>
                         </div>
                         <div class="stat-circle">
-                            <div class="stat-number">${weeklyStats.totalWorkouts}</div>
                             <div class="stat-label">This Week</div>
                         </div>
                         <div class="stat-circle">
@@ -103,28 +101,16 @@ export class DashboardModule {
                     </div>
                 </div>
                 
-                <!-- Recent Workouts -->
-                <div class="dashboard-card">
+                <!-- Replace the existing Recent Workouts section with this code -->
+                <div class="dashboard-section" id="recent-workouts-section">
                     <h2>Recent Workouts</h2>
-                    <div class="recent-workouts">
-                        ${recentWorkouts.length ? 
-                            recentWorkouts.map(workout => `
-                                <div class="workout-item">
-                                    <div class="workout-icon">
-                                        <i class="fas ${this.getWorkoutIcon(workout.type)}"></i>
-                                    </div>
-                                    <div class="workout-details">
-                                        <h3>${workout.name || workout.type}</h3>
-                                        <p>${new Date(workout.date).toLocaleDateString()} • ${workout.duration} min • ${workout.calories} cal</p>
-                                    </div>
-                                </div>
-                            `).join('') : 
-                            '<p class="empty-state">No recent workouts. Time to get moving!</p>'
-                        }
-                        <button class="btn btn-outline" id="addWorkoutBtn">
-                            <i class="fas fa-plus"></i> Add Workout
-                        </button>
+                    <div class="recent-workouts-container" id="recent-workouts-list">
+                        <!-- Workouts will be loaded here dynamically -->
+                        <p class="no-workouts">No recent workouts. Time to get moving!</p>
                     </div>
+                    <button id="dashboard-add-workout" class="primary-btn">
+                        <i class="fas fa-plus"></i> Add Workout
+                    </button>
                 </div>
                 
                 <!-- Weekly Progress Chart -->
@@ -163,7 +149,6 @@ export class DashboardModule {
                 </div>
             </div>
         `;
-
         // Initialize the weekly progress chart
         this.initWeeklyChart();
         
@@ -243,7 +228,7 @@ export class DashboardModule {
     }
 
     addEventListeners() {
-        const addWorkoutBtn = document.getElementById('addWorkoutBtn');
+        const addWorkoutBtn = document.getElementById('dashboard-add-workout');
         if (addWorkoutBtn) {
             addWorkoutBtn.addEventListener('click', () => {
                 // For demo, just add a sample workout
@@ -264,39 +249,8 @@ export class DashboardModule {
         const addGoalBtn = document.getElementById('addGoalBtn');
         if (addGoalBtn) {
             addGoalBtn.addEventListener('click', () => {
-                // For demo, add a sample goal
-                const goalTypes = ['weight', 'workout', 'steps', 'meditation'];
-                const randomType = goalTypes[Math.floor(Math.random() * goalTypes.length)];
-                
-                let newGoal;
-                if (randomType === 'weight') {
-                    newGoal = this.goalsModule.addGoal({
-                        type: 'weight',
-                        target: 65,
-                        current: 70,
-                        unit: 'kg',
-                        deadline: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString()
-                    });
-                } else if (randomType === 'workout') {
-                    newGoal = this.goalsModule.addGoal({
-                        type: 'workout',
-                        target: 20,
-                        current: 0,
-                        unit: 'sessions',
-                        deadline: new Date(new Date().setMonth(new Date().getMonth() + 2)).toISOString()
-                    });
-                } else {
-                    newGoal = this.goalsModule.addGoal({
-                        type: randomType,
-                        target: randomType === 'steps' ? 10000 : 30,
-                        current: 0,
-                        unit: randomType === 'steps' ? 'steps' : 'minutes',
-                        deadline: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString()
-                    });
-                }
-                
-                // Update the dashboard to show the new goal
-                this.render();
+                // Navigate to the goals page
+                window.location.href = 'goals.html';
             });
         }
     }
